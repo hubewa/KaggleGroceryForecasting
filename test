@@ -1,0 +1,4 @@
+"ERROR:  syntax error at or near "CREATE"
+LINE 1: ...LARE "CURSOR:CONN:797678" CURSOR WITHOUT HOLD FOR CREATE TAB...
+                                                             ^
+"
