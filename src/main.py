@@ -49,4 +49,5 @@ if(verify):
     verification = holidayTrainDF[int(nTrainRows*0.8):]
     
 if(model == 0): #Do XGBoost
+    print("Running XGBoost Model")
     XGBModel = xgbt.trainXGModel(train, verification)
