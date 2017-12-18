@@ -6,11 +6,22 @@ Created on Sat Dec 16 23:24:34 2017
 """
 
 import xgboost as xgb
+import sklearn
+import numpy as np
 
-def trainXGModel(train, verify):
+import math
+
+def trainXGModel(train):
     target = train['unit_sales']
-    train.drop(['unit_sales'], axis=1)   
-    xgtrain = xgb.DMatrix(train.values, target)
+    train = train.drop(['unit_sales'], axis=1)   
     
-    xgModel = xgb.train()    
+
+    xgModel = xgb.XGBRegressor().fit(train, target)
     return xgModel
+
+def loss(prediction, values):
+    subtract = np.subtract([math.log1p(x) for x in prediction], [math.log1p(x) for x in values])
+    print("Subtract = ", subtract)
+    loss = pow(np.sum(pow(x,2) for x in subtract),0.5)
+    print ("loss = ", loss)
+    return loss

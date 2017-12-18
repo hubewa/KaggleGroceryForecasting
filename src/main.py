@@ -9,6 +9,8 @@ import InputOutput as io
 import dataWrangling as dW
 import xgboostTraining as xgbt
 
+import pandas as pd
+
 from sklearn.model_selection import train_test_split
 
 
@@ -41,13 +43,47 @@ if(dataWrangle):
     print("Adding holidays...")
     holidayTestDF = dW.addHolidays(testDF, holidayDF)
     holidayTrainDF = dW.addHolidays(trainDF, holidayDF)
+    
+    print("Adding dummy variables...")
+    dummyTrain = pd.get_dummies(holidayTrainDF)
+    dummyTest = pd.get_dummies(holidayTestDF)
+    
+    nTrainRows = dummyTrain.shape[0]
+    
 
 #Creating Verification set
-nTrainRows = holidayTrainDF.shape[0]
 if(verify):
-    train = holidayTrainDF[:int(nTrainRows*0.8)]
-    verification = holidayTrainDF[int(nTrainRows*0.8):]
+    print("Set up verification tables...")
+    train = dummyTrain[:int(nTrainRows*0.8)]
+    verification = dummyTrain[int(nTrainRows*0.8):]
+    
+    xgTrain = train.drop(columns = ['date','item_nbr'])
+    xgVerify = train.drop(columns = ['date','item_nbr'])
+    
+    xgTrain.to_csv("../../data/Processed/xgTrainProcessed.csv")
+    xgVerify.to_csv("../../data/Processed/xgVerifyProcessed.csv")
+        
     
 if(model == 0): #Do XGBoost
-    print("Running XGBoost Model")
-    XGBModel = xgbt.trainXGModel(train, verification)
+    print("Dropping date and item number...")
+
+    xgTrain = pd.read_csv("../../data/Processed/xgTrainProcessed.csv")
+
+    
+    print("training XGBoost Model")
+    XGBModel = xgbt.trainXGModel(xgTrain)
+    
+    xgVerify = pd.read_csv("../../data/Processed/xgVerifyProcessed.csv")
+    xgVerifyScores = xgVerify['unit_sales']
+    xgVerify = xgVerify.drop(['unit_sales'], axis=1)
+    
+    scores = xgVerifyScores.values #converts scores to values
+    
+    predictions = XGBModel.predict(xgVerify)
+    
+    predictions[predictions < 0] = 0
+    scores[scores < 0] = 0
+    
+    loss = xgbt.loss(predictions, scores)
+    
+    
