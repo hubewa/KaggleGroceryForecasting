@@ -22,6 +22,6 @@ def trainXGModel(train):
 def loss(prediction, values):
     subtract = np.subtract([math.log1p(x) for x in prediction], [math.log1p(x) for x in values])
     print("Subtract = ", subtract)
-    loss = pow(np.sum(pow(x,2) for x in subtract),0.5)
+    loss = pow((np.sum(pow(x,2) for x in subtract)/prediction.size),0.5)
     print ("loss = ", loss)
     return loss
