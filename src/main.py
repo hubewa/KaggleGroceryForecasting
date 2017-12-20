@@ -77,7 +77,9 @@ if(model == 0): #Do XGBoost
     xgVerifyScores = xgVerify['unit_sales']
     xgVerify = xgVerify.drop(['unit_sales'], axis=1)
     
-    scores = xgVerifyScores.values #converts scores to values
+    scores = xgVerifyScores.values #converts scores to values 
+    
+    del xgTrain    
     
     predictions = XGBModel.predict(xgVerify)
     
