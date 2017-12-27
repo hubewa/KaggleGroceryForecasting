@@ -8,6 +8,7 @@ Created on Sat Dec 16 13:32:16 2017
 import pandas as pd
 import numpy as np
 
+import datetime
 
 def addHolidays(data, holidayCSV):
     data = data.assign(holiday = 0)
@@ -39,4 +40,33 @@ def addHolidays(data, holidayCSV):
     print("Local:", counterLocal)
     
     return data
+
+def movingAverages(oldData):
+    
+    data = oldData.copy(deep=True)
+    
+    #creates a unique list of stores and items from the dataset
+    stores_u = data.store_nbr.unique()
+    item_u = data.item_nbr.unique()
+
+    data = data.set_index(['store_nbr', 'item_nbr'], drop = False)
+    tmpa = pd.DataFrame()
+    for i in stores_u:
+        for item in item_u:
+            #if((i,item) in  data.index):
+                #print("i = <>, item = <>", (i, item))    
+                tmp = data.loc[[(i,item)]]
+                #for j in [112,56,28,14,7,3,1]:
+                for j in [28,14,7,3,1]:
+                    tmp['ma' + str(j)] = tmp.unit_sales.rolling(j).mean() 
+                    tmp['ma' + str(j)] = tmp['ma' + str(j)].shift(1)
+                    tmp['prev'+ str(j)] = tmp.unit_sales.shift(j)
+                    #tmp['ma' + str(j)][1:len(tmp)] = tmp['ma' + str(j)][0:len(tmp)-1]
+                tmpa = tmpa.append(tmp)
+                tmp.drop(tmp.index, inplace=True)            
+
+
+
+    data = pd.merge(data, tmpa, on=['store_nbr', 'item_nbr', 'date'])    
         
+    return data

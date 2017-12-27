@@ -22,6 +22,9 @@ def readTrainData(mode):
         trainCSV = pd.read_csv("../../data/Processed/082016itemsTrain.csv")
     elif (mode == 2):
         trainCSV = pd.read_csv("../../data/Processed/smallTrain.csv")
+    elif (mode == 3):
+        trainCSV = pd.read_csv("../../data/Processed/smallTestTrain.csv")
+        
         
     trainCSV['date'] = pd.to_datetime(trainCSV['date'])
     trainCSV = convertDate(trainCSV)
@@ -45,6 +48,11 @@ def readTestData():
     testCSV = convertDate(testCSV)
     
     return testCSV
+
+def readItemNbr():
+    itemCSV = pd.read_csv("../../data/Processed/itemList.csv")
+    
+    return itemCSV
 
 def convertDate(data):
     data['year'] = data['date'].apply(getYear)
