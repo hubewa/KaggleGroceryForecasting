@@ -19,10 +19,10 @@ from sklearn.model_selection import train_test_split
 
 #Settings used to save time if you need to
 mode = 2 #used to determine whih dataset we're reading from
-read = 1 #change to 1 if you want to re-read dataframes, otherwise, set this to 0
-dataWrangle = 1 #change to 1 if you want to rewrangle data
-verify = 1 #change to 1 if you want to remake the verification sets
-model = 1
+read = 0 #change to 1 if you want to re-read dataframes, otherwise, set this to 0
+dataWrangle = 0 #change to 1 if you want to rewrangle data
+verify = 0 #change to 1 if you want to remake the verification sets
+model = 0
 
 
 if(read):
@@ -50,22 +50,28 @@ else:
     print("Skipping Read...")
 
 if(dataWrangle):
+    newItemDF = dW.pickItems(itemDF)
+    
     currentTime = datetime.datetime.now().isoformat()
     print("Moving Averages time begin:", currentTime)
     
     print("Implementing moving averages...")
-    trainDF = dW.movingAverages(trainDF)
+    #trainDF = dW.movingAverages(trainDF)
+    trainDF = dW.movingAverages(trainDF, newItemDF)
     
     finishTime = datetime.datetime.now().isoformat()
     print("Moving Averages time ends:", finishTime)
 
+    newTrainDF = trainDF.copy(deep = True)
+    newTrainDF = newTrainDF[newTrainDF.columns.drop(list(newTrainDF.filter(regex='_y')))]
+    newTrainDF.columns = newTrainDF.columns.str.replace('_x','')
     
     currentTime = datetime.datetime.now().isoformat()
     print("Holiday training time begin:", currentTime)
     
     print("Adding holidays...")
     holidayTestDF = dW.addHolidays(testDF, holidayDF)
-    holidayTrainDF = dW.addHolidays(trainDF, holidayDF)
+    holidayTrainDF = dW.addHolidays(newTrainDF, holidayDF)
     
     currentTime = datetime.datetime.now().isoformat()
     print("Holiday training time ends:", currentTime)
@@ -93,11 +99,11 @@ if(verify):
     train = dummyTrain[:int(nTrainRows*0.8)]
     verification = dummyTrain[int(nTrainRows*0.8):]
     
-    xgTrain = train.drop(columns = ['date','item_nbr'])
-    xgVerify = train.drop(columns = ['date','item_nbr'])
+  #  xgTrain = train.drop(columns = ['date'])
+    #xgVerify = verification.drop(columns = ['date'])
     
-    xgTrain.to_csv("../../data/Processed/xgNewTrainProcessed.csv")
-    xgVerify.to_csv("../../data/Processed/xgNewVerifyProcessed.csv")
+    train.to_csv("../../data/Processed/3012-1219-trainProcessed.csv")
+    verification.to_csv("../../data/Processed/3012-1219-VerifyProcessed.csv")
     
     currentTime = datetime.datetime.now().isoformat()
     print("Verification time ends:", currentTime)
@@ -106,13 +112,13 @@ if(verify):
 if(model == 0): #Do XGBoost
     print("Dropping date and item number...")
 
-    xgTrain = pd.read_csv("../../data/Processed/xgTrainProcessed.csv")
-
+    #xgTrain = pd.read_csv("../../data/Processed/xgTrainProcessed.csv")
+    xgTrain = pd.read_csv("../../data/Processed/3012-1219-trainProcessed.csv")
     
     print("training XGBoost Model")
     XGBModel = xgbt.trainXGModel(xgTrain)
     
-    xgVerify = pd.read_csv("../../data/Processed/xgVerifyProcessed.csv")
+    xgVerify = pd.read_csv("../../data/Processed/3012-1219-VerifyProcessed.csv")
     xgVerifyScores = xgVerify['unit_sales']
     xgVerify = xgVerify.drop(['unit_sales'], axis=1)
     

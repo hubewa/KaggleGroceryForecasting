@@ -41,17 +41,27 @@ def addHolidays(data, holidayCSV):
     
     return data
 
-def movingAverages(oldData):
+def pickItems(itemsDF):
+    family_u = itemsDF.family.unique()
+    sample = pd.DataFrame()    
+    
+    for i in range(0,family_u.size):
+        sample = sample.append(itemsDF[itemsDF['family'] == family_u[i]].head(10))
+        
+    return sample
+
+def movingAverages(oldData, itemsDF):
     
     data = oldData.copy(deep=True)
     
     #creates a unique list of stores and items from the dataset
     stores_u = data.store_nbr.unique()
-    item_u = data.item_nbr.unique()
+    item_u = itemsDF.item_nbr.unique()
 
     data = data.set_index(['store_nbr', 'item_nbr'], drop = False)
     tmpa = pd.DataFrame()
     for i in stores_u:
+        print("Store number", i)
         for item in item_u:
             #if((i,item) in  data.index):
                 #print("i = <>, item = <>", (i, item))    

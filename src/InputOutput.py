@@ -50,7 +50,7 @@ def readTestData():
     return testCSV
 
 def readItemNbr():
-    itemCSV = pd.read_csv("../../data/Processed/itemList.csv")
+    itemCSV = pd.read_csv("../../data/Original/items.csv")
     
     return itemCSV
 
