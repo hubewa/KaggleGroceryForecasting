@@ -14,6 +14,9 @@ import pandas as pd
 
 import datetime
 
+from xgboost import plot_importance
+from matplotlib import pyplot
+
 from sklearn.model_selection import train_test_split
 
 
@@ -62,32 +65,7 @@ if(dataWrangle):
     finishTime = datetime.datetime.now().isoformat()
     print("Moving Averages time ends:", finishTime)
 
-    newTrainDF = trainDF.copy(deep = True)
-    newTrainDF = newTrainDF[newTrainDF.columns.drop(list(newTrainDF.filter(regex='_y')))]
-    newTrainDF.columns = newTrainDF.columns.str.replace('_x','')
-    
-    currentTime = datetime.datetime.now().isoformat()
-    print("Holiday training time begin:", currentTime)
-    
-    print("Adding holidays...")
-    holidayTestDF = dW.addHolidays(testDF, holidayDF)
-    holidayTrainDF = dW.addHolidays(newTrainDF, holidayDF)
-    
-    currentTime = datetime.datetime.now().isoformat()
-    print("Holiday training time ends:", currentTime)
-    
-    
-    currentTime = datetime.datetime.now().isoformat()
-    print("Dummies time begin:", currentTime)
-    
-    print("Adding dummy variables...")
-    dummyTrain = pd.get_dummies(holidayTrainDF)
-    dummyTest = pd.get_dummies(holidayTestDF)
-    
-    currentTime = datetime.datetime.now().isoformat()
-    print("Dummies time ends:", currentTime)
-    
-    nTrainRows = dummyTrain.shape[0]
+  
     
 
 #Creating Verification set
@@ -95,12 +73,10 @@ if(verify):
     currentTime = datetime.datetime.now().isoformat()
     print("Verification time begin:", currentTime)
     
+    
     print("Set up verification tables...")
     train = dummyTrain[:int(nTrainRows*0.8)]
     verification = dummyTrain[int(nTrainRows*0.8):]
-    
-  #  xgTrain = train.drop(columns = ['date'])
-    #xgVerify = verification.drop(columns = ['date'])
     
     train.to_csv("../../data/Processed/3012-1219-trainProcessed.csv")
     verification.to_csv("../../data/Processed/3012-1219-VerifyProcessed.csv")
@@ -110,21 +86,26 @@ if(verify):
         
     
 if(model == 0): #Do XGBoost
+    print("Do verification first")
+    
     print("Dropping date and item number...")
 
     #xgTrain = pd.read_csv("../../data/Processed/xgTrainProcessed.csv")
-    xgTrain = pd.read_csv("../../data/Processed/3012-1219-trainProcessed.csv")
+    #xgTrain = pd.read_csv("../../data/Processed/3012-1219-trainProcessed.csv")
+
+    train = train.drop(['Unnamed: 0'], axis = 1)
+    
     
     print("training XGBoost Model")
-    XGBModel = xgbt.trainXGModel(xgTrain)
+    XGBModel = xgbt.trainXGModel(train)
     
     xgVerify = pd.read_csv("../../data/Processed/3012-1219-VerifyProcessed.csv")
-    xgVerifyScores = xgVerify['unit_sales']
-    xgVerify = xgVerify.drop(['unit_sales'], axis=1)
+    xgVerifyScores = xgVerify.unit_sales
+    xgVerify = xgVerify.drop(['unit_sales', 'Unnamed: 0', 'Unnamed: 0.1'], axis=1)
     
     scores = xgVerifyScores.values #converts scores to values 
     
-    del xgTrain    
+    #del xgTrain    
     
     predictions = XGBModel.predict(xgVerify)
     
