@@ -50,33 +50,51 @@ def pickItems(itemsDF):
         
     return sample
 
-def movingAverages(oldData, itemsDF):
+def rollingMean(values, window):
+    weights = np.repeat(1.0, window)/window
+    sma = np.convolve(values, weights, 'valid')
+    return sma
     
-    data = oldData.copy(deep=True)
+def movingAverages(data, itemsDF):
+    
+    #data = oldData.copy(deep=True)
     
     #creates a unique list of stores and items from the dataset
     stores_u = data.store_nbr.unique()
-    item_u = itemsDF.item_nbr.unique()
+    #item_u = itemsDF.item_nbr.unique()
+    
+    item_u = data.item_nbr.unique()
 
     data = data.set_index(['store_nbr', 'item_nbr'], drop = False)
+
     tmpa = pd.DataFrame()
     for i in stores_u:
         print("Store number", i)
         for item in item_u:
             #if((i,item) in  data.index):
                 #print("i = <>, item = <>", (i, item))    
-                tmp = data.loc[[(i,item)]]
+                tmp = data.loc[[(i,item)],:].copy()
                 #for j in [112,56,28,14,7,3,1]:
+                
                 for j in [28,14,7,3,1]:
                     tmp['ma' + str(j)] = tmp.unit_sales.rolling(j).mean() 
                     tmp['ma' + str(j)] = tmp['ma' + str(j)].shift(1)
                     tmp['prev'+ str(j)] = tmp.unit_sales.shift(j)
                     #tmp['ma' + str(j)][1:len(tmp)] = tmp['ma' + str(j)][0:len(tmp)-1]
+                '''
+                for j in [28,14,7,3,1]:
+                    #temp1 = tmp.loc[:,'unit_sales'].rolling(j).mean()
+                    temp1 = rollingMean(tmp.loc[:,'unit_sales'].values, j)
+                    tmp.loc[:,'ma' + str(j)] = temp1
+                    tmp.loc[:,'ma' + str(j)] = tmp.loc[:,'ma' + str(j)].shift(1)
+                    tmp.loc[:,'prev'+ str(j)] = tmp.unit_sales.shift(j)
+                    #tmp['ma' + str(j)][1:len(tmp)] = tmp['ma' + str(j)][0:len(tmp)-1]
+                '''    
                 tmpa = tmpa.append(tmp)
                 tmp.drop(tmp.index, inplace=True)            
 
 
 
-    data = pd.merge(data, tmpa, on=['store_nbr', 'item_nbr', 'date'])    
+    data = data.merge(tmp, on=['store_nbr', 'item_nbr', 'date'])    
         
     return data
