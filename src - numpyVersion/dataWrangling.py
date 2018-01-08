@@ -7,6 +7,10 @@ Created on Sat Dec 16 13:32:16 2017
 
 import pandas as pd
 import numpy as np
+from sklearn import preprocessing
+
+
+from tqdm import tqdm
 
 import datetime
 
@@ -55,6 +59,45 @@ def rollingMean(values, window):
     sma = np.convolve(values, weights, 'valid')
     return sma
     
+def newMovingAverages(df, n): #n is the number of days
+    #first write new columns for the unit sale lag
+    le = preprocessing.LabelEncoder()
+    le.fit(df['date'])
+    df['date'] = le.transform(df['date'])
+    le.fit(df['item_nbr'])
+    df['item_nbr'] = le.transform(df['item_nbr'])
+    
+    df = df.sort_values(['store_nbr', 'item_nbr', 'date'], ascending=[True, True, True])
+    df.reset_index(inplace=True)
+    
+    #this variable is used to determine how many indexes we need to move forwards in after a 0 has been detected
+    counter = 0
+    lengthDF = len(df)
+    
+    
+    #Add lagging columns first
+    for i in tqdm(range(0, len(df))):
+        for ii in range(1, n+1):
+            if (i - ii) < 0: #check if we can't search the entry first
+                df.set_value(i, 'unit_sales_lag' + str(ii), np.nan)
+            elif df['item_nbr'][i] == df['item_nbr'][i - ii + counter] and df['date'][i] == df['date'][i - ii + counter] + ii:
+                df.set_value(i, 'unit_sales_lag' + str(ii), df['unit_sales'][i - ii + counter])
+            elif df['item_nbr'][i] == df['item_nbr'][i - ii + counter] and df['date'][i] != df['date'][i - ii + counter] + ii:
+                df.set_value(i, 'unit_sales_lag' + str(ii), 0)
+                counter += 1
+            # when iteration gets to a new item_nbr (new item or beginning new store) and we have no first day sales data
+            # elif df['item_nbr'][i] != df['item_nbr'][i - 1] and df['date'][i] > 0:
+            elif df['item_nbr'][i] != df['item_nbr'][i - ii]:
+                df.set_value(i, 'unit_sales_lag' + str(ii), np.nan)
+            else:
+                pass 
+        counter = 0 #reinitialize the counter
+    
+    #Then do moving averages        
+    movingAverageAlgo(df, n)
+    return df
+
+
 def movingAverages(data, itemsDF):
     
     saleData = data[['id', 'item_nbr', 'date', 'store_nbr', 'unit_sales']]
@@ -151,6 +194,16 @@ def movingAverages(data, itemsDF):
     data = data.merge(tmpa, on=['id', 'store_nbr', 'item_nbr', 'date'])    
         
     return data
+
+def movingAverageAlgo(train, d):
+    temp = 0;
+    for i in tqdm(range(0, len(train))):
+        for j in range(1,d+1):
+            temp = temp + train.iloc[i]['unit_sales_lag' + str(j)]
+            p = temp/j
+            train.set_value(i, 'unit_sales_MA' + str(j), temp)
+        temp = 0
+    return train
 
 def rolling_sum(a, n) :
     ret = np.cumsum(a, dtype=float)/n

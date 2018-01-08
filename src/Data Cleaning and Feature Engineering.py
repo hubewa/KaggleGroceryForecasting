@@ -146,6 +146,7 @@ df.replace(to_replace = '8/6/2017', value = '8/06/2017', inplace = True)
 df.replace(to_replace = '8/7/2017', value = '8/07/2017', inplace = True)
 df.replace(to_replace = '8/8/2017', value = '8/08/2017', inplace = True)
 df.replace(to_replace = '8/9/2017', value = '8/09/2017', inplace = True)
+
 # Label encode our dates
 from sklearn import preprocessing
 le = preprocessing.LabelEncoder()
@@ -153,6 +154,7 @@ le.fit(df['date'])
 df['date'] = le.transform(df['date'])
 le.fit(df['item_nbr'])
 df['item_nbr'] = le.transform(df['item_nbr'])
+
 # Sort it to look pretty
 df = df.sort_values(['store_nbr', 'item_nbr', 'date'], ascending=[True, True, True])
 df.reset_index(inplace=True)
@@ -171,7 +173,6 @@ df = df[['store_type', 'store_cluster', 'store_transactions', 'item_family',
 #        df['unit_sales_lag1'][i] = 0
 #    else:
 #        pass
-from tqdm import tqdm
 
 #for i in tqdm(range(1, len(df))):
 #    if df['item_nbr'][i] == df['item_nbr'][i - 1] and df['date'][i] == df['date'][i - 1] + 1:
