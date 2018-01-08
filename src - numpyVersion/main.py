@@ -21,11 +21,11 @@ from sklearn.model_selection import train_test_split
 
 
 #Settings used to save time if you need to
-mode = 4 #used to determine whih dataset we're reading from
-read = 1 #change to 1 if you want to re-read dataframes, otherwise, set this to 0
+mode = 3 #used to determine whih dataset we're reading from
+read = 0 #change to 1 if you want to re-read dataframes, otherwise, set this to 0
 dataWrangle = 1 #change to 1 if you want to rewrangle data
-verify = 0 #change to 1 if you want to remake the verification sets
-model = 1
+verify = 1 #change to 1 if you want to remake the verification sets
+model = 0
 
 
 if(read):
@@ -86,8 +86,8 @@ if(verify):
     train = dummyTrain[:int(nTrainRows*0.8)]
     verification = dummyTrain[int(nTrainRows*0.8):]
     
-    train.to_csv("../../data/Processed/0402-1028-trainSetProcessed.csv")
-    verification.to_csv("../../data/Processed/0402-1028-VerifyProcessed.csv")
+    #train.to_csv("../../data/Processed/0501-1028-trainSetProcessed.csv")
+    #verification.to_csv("../../data/Processed/0501-1028-VerifyProcessed.csv")
     
     currentTime = datetime.datetime.now().isoformat()
     print("Verification time ends:", currentTime)
@@ -97,8 +97,8 @@ if(model == 0): #Do XGBoost
    
     print("Dropping date and item number...")
 
-    #xgTrain = pd.read_csv("../../data/Processed/xgTrainProcessed.csv")
-    #xgTrain = pd.read_csv("../../data/Processed/3012-1219-trainProcessed.csv")
+    #train = pd.read_csv("../../data/Processed/0402-1028-trainSetProcessed.csv")
+    #verification = pd.read_csv("../../data/Processed/0402-1028-VerifyProcessed.csv")
 
     
     print("training XGBoost Model")

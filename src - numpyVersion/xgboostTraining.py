@@ -22,7 +22,7 @@ def trainXGModel(train):
     
     currentTime = datetime.datetime.now().isoformat()
     print("Train time begin:", currentTime)
-    xgModel = xgb.XGBRegressor().fit(train, target)
+    xgModel = xgb.XGBRegressor(learning_rate = 0.3, n_estimators=30).fit(train, target)
     finishTime = datetime.datetime.now().isoformat()
     print("Train time finish:", finishTime)
     return xgModel

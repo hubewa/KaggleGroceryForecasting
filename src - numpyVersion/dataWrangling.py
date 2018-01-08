@@ -60,8 +60,8 @@ def movingAverages(data, itemsDF):
     saleData = data[['id', 'item_nbr', 'date', 'store_nbr', 'unit_sales']]
     
     stores_u = saleData.store_nbr.unique()
-    item_u = itemsDF.item_nbr.unique()
-    #item_u = saleData.item_nbr.unique()
+    #item_u = itemsDF.item_nbr.unique()
+    item_u = saleData.item_nbr.unique()
     
     
     
@@ -71,9 +71,8 @@ def movingAverages(data, itemsDF):
     #creates a unique list of stores and items from the dataset
     #stores_u = data.store_nbr.unique()
     #item_u = itemsDF.item_nbr.unique()
-
+    derp = saleData.groupby('store_nbr')['unit_sales'].rolling(3)
     saleData = saleData.set_index(['store_nbr', 'item_nbr'], drop = False)
-    derp = saleData.groupby('store_nbr')
     #saleData = saleData.groupby('store_nbr')
     #saleData = saleData.sort_values(by = ['store_nbr', 'item_nbr'])
 
