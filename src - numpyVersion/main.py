@@ -24,8 +24,8 @@ from sklearn.model_selection import train_test_split
 mode = 2 #used to determine whih dataset we're reading from
 read = 1 #change to 1 if you want to re-read dataframes, otherwise, set this to 0
 dataWrangle = 1 #change to 1 if you want to rewrangle data
-verify = 0 #change to 1 if you want to remake the verification sets
-model = 1
+verify = 1 #change to 1 if you want to remake the verification sets
+model = 0
 
 
 if(read):
@@ -33,8 +33,7 @@ if(read):
     print("Reading time begin:", currentTime)
     
     print("Reading Training Database, mode {} ...".format(mode))
-    #trainDF = io.readTrainData(mode)
-    trainDF = io.lesReadTrainData(mode)
+    trainDF = io.readTrainData(mode)
     
     print("Reading Test Database...")
     testDF = io.readTestData()
@@ -61,8 +60,12 @@ if(dataWrangle):
     
     print("Implementing moving averages...")
     #trainDF = dW.movingAverages(trainDF)
+<<<<<<< HEAD
     #trainDF = dW.movingAverages(trainDF, newItemDF)
     newTrain = dW.newMovingAverages(trainDF, 30)
+=======
+    trainDF = dW.movingAverages(trainDF, newItemDF)
+>>>>>>> parent of 8f2446f... Fixing bugs
     
     finishTime = datetime.datetime.now().isoformat()
     print("Moving Averages time ends:", finishTime)
@@ -72,7 +75,7 @@ if(dataWrangle):
 
 
     print("Adding Holidays...")
-    trainDF = dW.addHolidays(newTrain, holidayDF)
+    trainDF = dW.addHolidays(trainDF, holidayDF)
   
     
 

@@ -31,21 +31,6 @@ def readTrainData(mode):
     trainCSV = convertDate(trainCSV)
 
     return trainCSV
-
-def lesReadTrainData(mode):
-    if (mode == 0):
-        trainCSV = pd.read_csv("../../data/Processed/fullItemsTrain.csv")
-    elif (mode == 1):
-        trainCSV = pd.read_csv("../../data/Processed/082016itemsTrain.csv")
-    elif (mode == 2):
-        trainCSV = pd.read_csv("../../data/Processed/smallTrain.csv")
-    elif (mode == 3):
-        trainCSV = pd.read_csv("../../data/Processed/smallTestTrain.csv")
-    elif (mode == 4):    
-        trainCSV = pd.read_csv("../../data/Processed/smallTrain2.csv")
-
-    return trainCSV
-
 '''
 readHoliday reads data from the holiday table
 '''

@@ -7,10 +7,6 @@ Created on Sat Dec 16 13:32:16 2017
 
 import pandas as pd
 import numpy as np
-from sklearn import preprocessing
-
-
-from tqdm import tqdm
 
 import datetime
 
@@ -59,6 +55,7 @@ def rollingMean(values, window):
     sma = np.convolve(values, weights, 'valid')
     return sma
     
+<<<<<<< HEAD
 def newMovingAverages(df, n): #n is the number of days
     #first write new columns for the unit sale lag
     le = preprocessing.LabelEncoder()
@@ -97,6 +94,8 @@ def newMovingAverages(df, n): #n is the number of days
     return df
 
 
+=======
+>>>>>>> parent of 8f2446f... Fixing bugs
 def movingAverages(data, itemsDF):
     
     saleData = data[['id', 'item_nbr', 'date', 'store_nbr', 'unit_sales']]
@@ -194,6 +193,7 @@ def movingAverages(data, itemsDF):
         
     return data
 
+<<<<<<< HEAD
 def movingAverageAlgo(train, d):
     temp = 0;
     for i in tqdm(range(0, len(train))):
@@ -204,6 +204,8 @@ def movingAverageAlgo(train, d):
         temp = 0
     return train
 
+=======
+>>>>>>> parent of 8f2446f... Fixing bugs
 def rolling_sum(a, n) :
     ret = np.cumsum(a, dtype=float)/n
     ret[n:] = ret[n:] - ret[:-n]
