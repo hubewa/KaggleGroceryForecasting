@@ -21,8 +21,13 @@ from sklearn.model_selection import train_test_split
 
 
 #Settings used to save time if you need to
+<<<<<<< HEAD
 mode = 2 #used to determine whih dataset we're reading from
 read = 1 #change to 1 if you want to re-read dataframes, otherwise, set this to 0
+=======
+mode = 3 #used to determine whih dataset we're reading from
+read = 0 #change to 1 if you want to re-read dataframes, otherwise, set this to 0
+>>>>>>> parent of 2fedf16... Finished MA functions
 dataWrangle = 1 #change to 1 if you want to rewrangle data
 verify = 1 #change to 1 if you want to remake the verification sets
 model = 0
@@ -62,17 +67,17 @@ if(dataWrangle):
     #trainDF = dW.movingAverages(trainDF)
 <<<<<<< HEAD
     #trainDF = dW.movingAverages(trainDF, newItemDF)
+<<<<<<< HEAD
     newTrain = dW.newMovingAverages(trainDF, 30)
 =======
     trainDF = dW.movingAverages(trainDF, newItemDF)
 >>>>>>> parent of 8f2446f... Fixing bugs
+=======
+    newTrain = dW.newMovingAverages(trainDF, 5)
+>>>>>>> parent of 2fedf16... Finished MA functions
     
     finishTime = datetime.datetime.now().isoformat()
     print("Moving Averages time ends:", finishTime)
-
-    newTrain['date'] = pd.to_datetime(newTrain['date'])
-    newTrain = io.convertDate(newTrain)
-
 
     print("Adding Holidays...")
     trainDF = dW.addHolidays(trainDF, holidayDF)

@@ -69,6 +69,7 @@ def newMovingAverages(df, n): #n is the number of days
     
     #this variable is used to determine how many indexes we need to move forwards in after a 0 has been detected
     counter = 0
+    lengthDF = len(df)
     
     
     #Add lagging columns first
@@ -76,8 +77,6 @@ def newMovingAverages(df, n): #n is the number of days
         for ii in range(1, n+1):
             if (i - ii) < 0: #check if we can't search the entry first
                 df.set_value(i, 'unit_sales_lag' + str(ii), np.nan)
-            elif df['item_nbr'][i] != df['item_nbr'][i - ii] or df['store_nbr'][i] != df['store_nbr'][i - ii]:
-                df.set_value(i, 'unit_sales_lag' + str(ii), np.nan) 
             elif df['item_nbr'][i] == df['item_nbr'][i - ii + counter] and df['date'][i] == df['date'][i - ii + counter] + ii:
                 df.set_value(i, 'unit_sales_lag' + str(ii), df['unit_sales'][i - ii + counter])
             elif df['item_nbr'][i] == df['item_nbr'][i - ii + counter] and df['date'][i] != df['date'][i - ii + counter] + ii:
@@ -85,6 +84,8 @@ def newMovingAverages(df, n): #n is the number of days
                 counter += 1
             # when iteration gets to a new item_nbr (new item or beginning new store) and we have no first day sales data
             # elif df['item_nbr'][i] != df['item_nbr'][i - 1] and df['date'][i] > 0:
+            elif df['item_nbr'][i] != df['item_nbr'][i - ii]:
+                df.set_value(i, 'unit_sales_lag' + str(ii), np.nan)
             else:
                 pass 
         counter = 0 #reinitialize the counter
@@ -200,7 +201,7 @@ def movingAverageAlgo(train, d):
         for j in range(1,d+1):
             temp = temp + train.iloc[i]['unit_sales_lag' + str(j)]
             p = temp/j
-            train.set_value(i, 'unit_sales_MA' + str(j), p)
+            train.set_value(i, 'unit_sales_MA' + str(j), temp)
         temp = 0
     return train
 
