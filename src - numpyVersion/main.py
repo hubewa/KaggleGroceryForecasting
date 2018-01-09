@@ -21,8 +21,8 @@ from sklearn.model_selection import train_test_split
 
 
 #Settings used to save time if you need to
-mode = 3 #used to determine whih dataset we're reading from
-read = 0 #change to 1 if you want to re-read dataframes, otherwise, set this to 0
+mode = 4 #used to determine whih dataset we're reading from
+read = 1 #change to 1 if you want to re-read dataframes, otherwise, set this to 0
 dataWrangle = 1 #change to 1 if you want to rewrangle data
 verify = 0 #change to 1 if you want to remake the verification sets
 model = 1
@@ -62,10 +62,14 @@ if(dataWrangle):
     print("Implementing moving averages...")
     #trainDF = dW.movingAverages(trainDF)
     #trainDF = dW.movingAverages(trainDF, newItemDF)
-    newTrain = dW.newMovingAverages(trainDF, 5)
+    newTrain = dW.newMovingAverages(trainDF, 90)
     
     finishTime = datetime.datetime.now().isoformat()
     print("Moving Averages time ends:", finishTime)
+
+    newTrain['date'] = pd.to_datetime(newTrain['date'])
+    newTrain = io.convertDate(newTrain)
+
 
     print("Adding Holidays...")
     trainDF = dW.addHolidays(newTrain, holidayDF)
