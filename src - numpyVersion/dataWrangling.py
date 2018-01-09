@@ -10,6 +10,11 @@ import numpy as np
 
 import datetime
 
+from sklearn import preprocessing
+
+from tqdm import tqdm
+
+
 def addHolidays(data, holidayCSV):
     data = data.assign(holiday = 0)
     counterNational = 0
@@ -190,7 +195,7 @@ def movingAverages(data, itemsDF):
         
     return data
 
-def movingAverageAlgo(train, d):
+def movingAverageAlgo(train, d): #d does nothing for now
     temp = 0;
     for i in tqdm(range(0, len(train))):
         for j in range(1,d+1):

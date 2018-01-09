@@ -22,9 +22,9 @@ from sklearn.model_selection import train_test_split
 
 #Settings used to save time if you need to
 mode = 2 #used to determine whih dataset we're reading from
-read = 1 #change to 1 if you want to re-read dataframes, otherwise, set this to 0
+read = 0 #change to 1 if you want to re-read dataframes, otherwise, set this to 0
 dataWrangle = 1 #change to 1 if you want to rewrangle data
-verify = 1 #change to 1 if you want to remake the verification sets
+verify = 0 #change to 1 if you want to remake the verification sets
 model = 0
 
 
@@ -33,7 +33,7 @@ if(read):
     print("Reading time begin:", currentTime)
     
     print("Reading Training Database, mode {} ...".format(mode))
-    trainDF = io.readTrainData(mode)
+    trainDF = io.lesReadTrainData(mode)
     
     print("Reading Test Database...")
     testDF = io.readTestData()
@@ -61,8 +61,7 @@ if(dataWrangle):
     print("Implementing moving averages...")
     #trainDF = dW.movingAverages(trainDF)
     #trainDF = dW.movingAverages(trainDF, newItemDF)
-    newTrain = dW.newMovingAverages(trainDF, 30)
-    #trainDF = dW.movingAverages(trainDF, newItemDF)
+    newTrain = dW.newMovingAverages(trainDF, 14)
     
     finishTime = datetime.datetime.now().isoformat()
     print("Moving Averages time ends:", finishTime)
