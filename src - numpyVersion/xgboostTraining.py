@@ -58,7 +58,11 @@ def predictXGBoost(xgModel, test, items):
     #test = convertDate(test)
     
     for date in date_list:
-        print(date)
+        X = prepare_dataset(df_2017, date)
+        dateResults = test[test['date'] == date]
+        newData = pd.merge(dateResults, X, on = ['item_nbr', 'store_nbr'], how = 'outer')
+        
+        
     
     
     return test
@@ -70,9 +74,18 @@ def get_timespan(df, dt, minus, periods):
     return df[pd.date_range(dt - datetime.timedelta(days=minus), periods=periods)]
 
 def prepare_dataset(df, t2017, is_train=True):
-    X = pd.DataFrame()
+    X = get_timespan(df, t2017, 14, 14)
+    X.columns = ['unit_sales_lag14', 'unit_sales_lag13',
+                 'unit_sales_lag12', 'unit_sales_lag11',
+                 'unit_sales_lag10', 'unit_sales_lag9',
+                 'unit_sales_lag8', 'unit_sales_lag7',
+                 'unit_sales_lag6', 'unit_sales_lag5',
+                 'unit_sales_lag4', 'unit_sales_lag3',
+                 'unit_sales_lag2', 'unit_sales_lag1',
+                 ]
+    for i in range(1,14):
+        X['unit_sales_MA' + str(i)] = get_timespan(df, t2017, i, i).mean(axis=1).values
     
-    for i in range(14):
-        X['unit_sales_lag' + str(i)] = get_timespan(df, t2017, i, i).values 
-        X['unit_sales_lag' + str(i)] = get_timespan(df, t2017, i, i).mean(axis=1).values
+    X.reset_index(level = ['store_nbr', 'item_nbr'], inplace = True)
+    
     return X
