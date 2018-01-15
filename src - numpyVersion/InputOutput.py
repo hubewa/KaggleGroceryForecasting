@@ -26,9 +26,11 @@ def readTrainData(mode):
         trainCSV = pd.read_csv("../../data/Processed/smallTestTrain.csv")
     elif (mode == 4):    
         trainCSV = pd.read_csv("../../data/Processed/smallTrain2.csv")
+    elif (mode == 5):
+        trainCSV = pd.read_csv("../../data/Processed/newTrain2.csv")
         
-    trainCSV['date'] = pd.to_datetime(trainCSV['date'])
-    trainCSV = convertDate(trainCSV)
+    #trainCSV['date'] = pd.to_datetime(trainCSV['date'])
+    #trainCSV = convertDate(trainCSV)
 
     return trainCSV
 
@@ -44,6 +46,10 @@ def lesReadTrainData(mode):
         trainCSV = pd.read_csv("../../data/Processed/smallTestTrain.csv")
     elif (mode == 4):    
         trainCSV = pd.read_csv("../../data/Processed/smallTrain2.csv")
+    elif (mode == 5):
+        trainCSV = pd.read_csv("../../data/Processed/newTrain.csv")
+    elif (mode == 6):
+        trainCSV = pd.read_csv("../../data/Processed/082017itemsTrain.csv")
         
     return trainCSV
 
@@ -61,8 +67,8 @@ def readHoliday():
 def readTestData():
     testCSV = pd.read_csv("../../data/Processed/test.csv")
     
-    testCSV['date'] = pd.to_datetime(testCSV['date'])
-    testCSV = convertDate(testCSV)
+    #testCSV['date'] = pd.to_datetime(testCSV['date'])
+    #testCSV = convertDate(testCSV)
     
     return testCSV
 

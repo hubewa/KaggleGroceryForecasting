@@ -10,7 +10,11 @@ import sklearn
 import numpy as np
 import pandas as pd
 
+import tqdm
+
 import datetime
+
+from sklearn import preprocessing
 
 import math
 
@@ -34,9 +38,41 @@ def loss(prediction, values):
     print ("loss = ", loss)
     return loss
 
-def predictXGBoost(xgModel, train, test):
+def predictXGBoost(xgModel, test, items):
     results = pd.DataFrame
     
-    testDate_u = test.date.unique()
+    df_2017 = test.set_index(
+    ["store_nbr", "item_nbr", "date"])[["unit_sales"]].unstack(
+        level=-1).fillna(0)
+    df_2017.columns = df_2017.columns.get_level_values(1)
+
+    items = items.reindex(df_2017.index.get_level_values(1))
     
     
+    base = datetime.date(day = 16, month = 8, year = 2017)
+    date_list = [base + datetime.timedelta(days=x) for x in range(0, 16)]
+    
+    test['dateIndex'] = test['date']
+    
+    test['date'] = pd.to_datetime(test['date'])
+    #test = convertDate(test)
+    
+    for date in date_list:
+        print(date)
+    
+    
+    return test
+    
+#    for date in tqdm(date_list)
+#        test[]
+    
+def get_timespan(df, dt, minus, periods):
+    return df[pd.date_range(dt - datetime.timedelta(days=minus), periods=periods)]
+
+def prepare_dataset(df, t2017, is_train=True):
+    X = pd.DataFrame()
+    
+    for i in range(14):
+        X['unit_sales_lag' + str(i)] = get_timespan(df, t2017, i, i).values 
+        X['unit_sales_lag' + str(i)] = get_timespan(df, t2017, i, i).mean(axis=1).values
+    return X
