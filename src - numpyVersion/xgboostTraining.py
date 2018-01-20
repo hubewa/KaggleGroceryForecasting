@@ -10,7 +10,7 @@ import sklearn
 import numpy as np
 import pandas as pd
 
-import tqdm
+from tqdm import tqdm
 
 import datetime
 
@@ -38,31 +38,56 @@ def loss(prediction, values):
     print ("loss = ", loss)
     return loss
 
-def predictXGBoost(xgModel, test, items):
-    results = pd.DataFrame
+def predictXGBoost(xgModel, test, items, cols):
     
     df_2017 = test.set_index(
     ["store_nbr", "item_nbr", "date"])[["unit_sales"]].unstack(
         level=-1).fillna(0)
     df_2017.columns = df_2017.columns.get_level_values(1)
+    df_2017['item_nbr'] = df_2017.index.get_level_values('item_nbr')
+    df_2017['store_nbr'] = df_2017.index.get_level_values('store_nbr')
 
+    #test = pd.get_dummies(test)
+    '''
+    test = pd.get_dummies(test, prefix = ['onpromotion', 'family', 'perishable', 'city', 'state', 'type'], 
+                               columns =['onpromotion', 'family', 'perishable', 'city', 'state', 'type'])
+    '''
+    
     items = items.reindex(df_2017.index.get_level_values(1))
     
     
     base = datetime.date(day = 16, month = 8, year = 2017)
     date_list = [base + datetime.timedelta(days=x) for x in range(0, 16)]
     
-    test['dateIndex'] = test['date']
-    
     test['date'] = pd.to_datetime(test['date'])
     #test = convertDate(test)
     
-    for date in date_list:
+    for date in tqdm(date_list):
         X = prepare_dataset(df_2017, date)
         dateResults = test[test['date'] == date]
         newData = pd.merge(dateResults, X, on = ['item_nbr', 'store_nbr'], how = 'outer')
+        #dateFormat = newData['date'][1]
+        newData = newData.drop(['date', 'unit_sales'], axis = 1)
+        newData = pd.get_dummies(newData)
+        newData.columns = newData.columns.str.strip()
+        newData = newData[cols]
+        predictions = xgModel.predict(newData)
         
+        dateResults['unit_sales'] = pd.Series(predictions)
+        test = pd.merge(test, dateResults, left_on = 'id', right_on = 'id', how = 'outer')
+        test.unit_sales_x = test.unit_sales_x.fillna(0)
+        test.unit_sales_y = test.unit_sales_y.fillna(0)
+        test.unit_sales_x = test.unit_sales_x + test.unit_sales_y
+        test = drop_y(test)
+        test = rename_x(test)
         
+        df_2017 = test.set_index(
+        ["store_nbr", "item_nbr", "date"])[["unit_sales"]].unstack(
+            level=-1).fillna(0)
+        df_2017.columns = df_2017.columns.get_level_values(1)
+        df_2017['item_nbr'] = df_2017.index.get_level_values('item_nbr')
+        df_2017['store_nbr'] = df_2017.index.get_level_values('store_nbr')
+
     
     
     return test
@@ -71,7 +96,7 @@ def predictXGBoost(xgModel, test, items):
 #        test[]
     
 def get_timespan(df, dt, minus, periods):
-    return df[pd.date_range(dt - datetime.timedelta(days=minus), periods=periods)]
+    return df[pd.date_range(dt - datetime.timedelta(days=minus), periods=periods).applymap(str)]
 
 def prepare_dataset(df, t2017, is_train=True):
     X = get_timespan(df, t2017, 14, 14)
@@ -83,9 +108,23 @@ def prepare_dataset(df, t2017, is_train=True):
                  'unit_sales_lag4', 'unit_sales_lag3',
                  'unit_sales_lag2', 'unit_sales_lag1',
                  ]
-    for i in range(1,14):
+    for i in range(1,15):
         X['unit_sales_MA' + str(i)] = get_timespan(df, t2017, i, i).mean(axis=1).values
     
     X.reset_index(level = ['store_nbr', 'item_nbr'], inplace = True)
     
     return X
+
+def drop_y(df):
+    # list comprehension of the cols that end with '_y'
+    to_drop = [x for x in df if x.endswith('_y')]
+    df.drop(to_drop, axis=1, inplace=True)
+    
+    return df
+    
+def rename_x(df):
+    for col in df:
+        if col.endswith('_x'):
+            df.rename(columns={col:col.rstrip('_x')}, inplace=True)
+            
+    return df
